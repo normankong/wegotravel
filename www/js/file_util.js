@@ -5,21 +5,21 @@ var fileUtil = {
 	{
 		if (typeof rootDir === "string")
 		{
-			window.resolveLocalFileSystemURL(rootDir, function (dirEntry) 
+			window.resolveLocalFileSystemURL(rootDir, function (dirEntry)
 			{
-				dirEntry.getDirectory(subDir, { create: true, exclusive: false }, function (subDirEntry) 
+				dirEntry.getDirectory(subDir, { create: true, exclusive: false }, function (subDirEntry)
 				{
 					fileUtil.createFile(subDirEntry, file, cb);
 				});
-			}, 
+			},
 			errorHandler.bind(null, rootDir)
 			);
 		}
 		else
 		{
-			rootDirEntry.getDirectory(subDir, function (dirEntry) 
+			rootDirEntry.getDirectory(subDir, function (dirEntry)
 			{
-				dirEntry.getDirectory(subDir, { create: true, exclusive: false }, function (subDirEntry) 
+				dirEntry.getDirectory(subDir, { create: true, exclusive: false }, function (subDirEntry)
 				{
 					fileUtil.createFile(subDirEntry, file, cb);
 				});
@@ -30,38 +30,38 @@ var fileUtil = {
 	// Create the File
 	createFile: function (dirEntry, fileName, cb)
 	{
-		dirEntry.getFile(fileName, {create: true, exclusive: false}, function(fileEntry) 
+		dirEntry.getFile(fileName, {create: true, exclusive: false}, function(fileEntry)
 		{
 			cb(fileEntry);
 		});
 	},
 
-    writeFile: function(folder, subDir, filename, dataObj, isAppend, cb)
+  writeFile: function(folder, subDir, filename, dataObj, isAppend, cb)
 	{
 		fileUtil.touchFile(folder, subDir, filename, function (fileEntry)
 		{
-			fileEntry.createWriter(function (fileWriter) 
+			fileEntry.createWriter(function (fileWriter)
 			{
-				fileWriter.onwriteend = function() 
+				fileWriter.onwriteend = function()
 				{
 					var filepath = folder+"/"+subDir+"/"+filename;
-					app.showStatus("Successful file write... : " + filepath);
+					app.showStatus("Successful file write... : \n" + filepath);
 					cb(filepath);
 				};
-	 
-				fileWriter.onerror = function (e) 
+
+				fileWriter.onerror = function (e)
 				{
 					app.showStatus("Failed file read: " + e.toString());
 				};
-	 
-				// If we are appending data to file, go to the end of the file. 
-				if (isAppend) 
+
+				// If we are appending data to file, go to the end of the file.
+				if (isAppend)
 				{
-					try 
+					try
 					{
 						fileWriter.seek(fileWriter.length);
 					}
-					catch (e) 
+					catch (e)
 					{
 						app.showStatus("file doesn't exist!");
 					}
@@ -70,71 +70,70 @@ var fileUtil = {
 			});
 		});
 	},
-	
-	downloadZip: function()
-	{
-		var filename = "clientpack.zip";
-		var xhr = new XMLHttpRequest();
-		xhr.open('GET', appContext.clientPackURL, true);
-		xhr.responseType = 'blob';
 
-		xhr.onload = function() 
+	refreshTripsPack: function()
+	{
+		var filename = appContextHelper.getTripsPackFile();
+		var tripsPackURL =  appContextHelper.getTripsPackURL();
+		var cdvDataFolder = appContextHelper.getCdvDataFolder();
+		var applicationFolder =  appContextHelper.getApplicationFolder();
+
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET',tripsPackURL , true);
+		xhr.responseType = 'blob';
+		xhr.onload = function()
 		{
-			if (this.status == 200) 
+			if (this.status == 200)
 			{
 				var blob = new Blob([this.response], { type: 'application/zip' });
-				fileUtil.writeFile( appContext.natDataFolder, "hailey", filename, blob, false, function (filename)
+				fileUtil.writeFile( cdvDataFolder, applicationFolder, filename, blob, false, function (filename)
 				{
-					app.showStatus("Download Completed : " + filename + "-->" + appContext.natDataFolder + "hailey/");
+					app.showStatus("Download Completed : " + filename + "-->" + cdvDataFolder + applicationFolder + "/" + filename);
 					$("#progressbar").show();
-					zip.unzip(filename, appContext.natDataFolder + "hailey/", function(result)
+					zip.unzip(filename, cdvDataFolder + applicationFolder + "/", function(result)
 					{
-						app.showStatus("Unzip Result : " + result);	
+						app.showStatus("Unzip Result : " + result);
+						alert("Trips Pack Refresh completed");
 						setTimeout(function (){$("#progressbar").hide();}, 2000);
 					}, progressCallback);
 				});
 			}
 			else
 			{
-				app.showStatus("Fail to Download");
+				app.showStatus("Fail to Download" + tripsPackURL);
 			}
 		};
 		xhr.send();
 	},
 
-	downloadTripsConfig: function(cb)
+	refreshTripsConfig: function(uri, fileURL, cb)
 	{
-		var xhr = new XMLHttpRequest();
-		xhr.open('GET', appContext.tripsConfigURL, true);
-		xhr.responseType = 'text/plain';
+		(new FileTransfer()).download(uri,fileURL,
+			function(entry)
+			{
+				console.log("download complete: " + entry.toURL());
+				cb({value : true,  entry : entry});
+			},
+			function(error)
+			{
+				cb({value : false, error : error});
+			}
+		);
+	},
 
-		xhr.onload = function() 
-		{
-			if (this.status == 200) 
-			{
-				var blob = new Blob([this.response], { type: 'text/plain' });
-				fileUtil.writeFile( appContext.natDataFolder, "hailey", appContext.tripsConfig, blob, false, function (filename)
-				{
-					app.showStatus("Download Completed : " +  appContext.tripsConfig);
-					cb({value : true});
-				});
-			}
-			else
-			{
-				app.showStatus("Fail to Download Trip Config");
-				cb({value : false});
-			}
-		};
-		xhr.send();
+	// Check File Exist or nto
+	checkIfFileExists: function(path, cb)
+	{
+			window.resolveLocalFileSystemURL(path, function (){cb({value : true});},  function () {cb({value : false});});
 	}
 };
 
-var progressCallback = function(progressEvent) 
+var progressCallback = function(progressEvent)
 {
     $("#progressbar" ).progressbar({"value" : Math.round(progressEvent.loaded / progressEvent.total * 100)});
 };
 
-var errorHandler = function (fileName, e) {  
+var errorHandler = function (fileName, e) {
     var msg = '';
 
     switch (e.code) {

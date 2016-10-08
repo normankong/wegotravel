@@ -1,0 +1,26 @@
+{
+	"appURL"				     : "http://192.168.0.104:5000/build/WeGoTravel.apk",
+	"applicationFolder"  : "wegotravel",
+
+	"tripsPackURL"		   : "http://192.168.0.104:5000/build/trips_pack.zip",
+	"tripsPackFile"      : "trips_pack.zip",
+
+	"tripsConfigURL"		 : "http://192.168.0.104:5000/build/trips_config.json",
+	"tripsConfigFile" 	 : "trips_config.json",
+
+	"splashTitle"				 : "We Go Travel !",
+	"splashMessage"			 : "Please select a trip on left menu! ",
+	"splashImage"				 : "splash/cover.jpg",
+
+	"natDataFolder"			 : null,
+	"cdvDataFolder"			 : null,
+	"networkStatus"			 : null,
+
+	"tripsConfig"     	 : null,
+	"tripConfig"      	 : null,
+
+	"alarmClockURL"			 : "cdvfile://localhost/sdcard/hailey/alarm.mp3",
+	"media"					  	 : null,
+
+	"isVerbose"          : false
+}
