@@ -237,6 +237,20 @@ module.exports = [
         "clobbers": [
             "zip"
         ]
+    },
+    {
+        "file": "plugins/cordova-plugin-file-transfer/www/FileTransferError.js",
+        "id": "cordova-plugin-file-transfer.FileTransferError",
+        "clobbers": [
+            "window.FileTransferError"
+        ]
+    },
+    {
+        "file": "plugins/cordova-plugin-file-transfer/www/FileTransfer.js",
+        "id": "cordova-plugin-file-transfer.FileTransfer",
+        "clobbers": [
+            "window.FileTransfer"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -252,7 +266,8 @@ module.exports.metadata =
     "cordova-plugin-vibration": "2.1.2",
     "cordova-plugin-dialogs": "1.3.0",
     "cordova-plugin-file": "4.3.0",
-    "cordova-plugin-zip": "3.1.0"
+    "cordova-plugin-zip": "3.1.0",
+    "cordova-plugin-file-transfer": "1.6.0"
 };
 // BOTTOM OF METADATA
 });
